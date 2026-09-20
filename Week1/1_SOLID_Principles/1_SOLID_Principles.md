@@ -141,7 +141,8 @@ Tách mỗi trách nhiệm thành class riêng:
 
 Java
 
-`// Trách nhiệm 1: Validate order
+```java 
+// Trách nhiệm 1: Validate order
 public class OrderValidator {
     public boolean validate(Order order) {
         if (order.getItems().isEmpty()) return false;
@@ -207,7 +208,8 @@ public class CreateOrderUseCase {
         notification.sendEmail(order);
         publisher.publish(new OrderCreatedEvent(order));
     }
-}`
+} 
+```
 
 ### **Lợi ích**
 
@@ -299,7 +301,8 @@ Dùng **polymorphism** (interface/abstract class):
 
 Java
 
-`// Abstraction
+```java
+// Abstraction
 public interface DiscountPolicy {
     double calculate(Order order);
 }
@@ -337,7 +340,8 @@ public class DiscountCalculator {
     public double calculate(Order order) {
         return discountPolicy.calculate(order);
     }
-}`
+}
+```
 
 ### **Lợi ích**
 
