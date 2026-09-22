@@ -715,7 +715,8 @@ public class NatationAthlete implements Swimmer, Eater, Sleeper {
 
 Java
 
-`// Xấu: interface "fat"
+```Java
+// Xấu: interface "fat"
 public interface Repository<T> {
     void create(T entity);
     T read(String id);
@@ -755,13 +756,15 @@ public class OrderService {
         this.reader = reader;
         this.writer = writer;
     }
-}`
+}
+```
 
 ## **Bài tập**
 
 Java
 
-`public interface Animal {
+```Java
+public interface Animal {
     void eat();
     void run();
     void fly();
@@ -800,7 +803,8 @@ public class Bird implements Animal {
     public void swim() {
         throw new UnsupportedOperationException("Bird cannot swim");
     }
-}`
+}
+```
 
 ### **Hãy trả lời**
 
@@ -825,7 +829,8 @@ Nói cách khác:
 
 Java
 
-`// Low-level: database
+```Java
+// Low-level: database
 public class MySQLDatabase {
     public void save(Order order) {
         // Lưu vào MySQL
@@ -848,7 +853,8 @@ public class OrderService {
         Order order = new Order(request);
         database.save(order); // Phụ thuộc MySQL
     }
-}`
+}
+```
 
 ### **Vấn đề**
 
@@ -862,7 +868,8 @@ Dùng **abstraction (interface)**:
 
 Java
 
-`// Abstraction
+```Java
+// Abstraction
 public interface OrderRepository {
     void save(Order order);
     Order findById(String id);
@@ -916,7 +923,8 @@ public class OrderService {
 
 Java
 
-`// Test
+```Java
+// Test
 public class InMemoryOrderRepository implements OrderRepository {
     private Map<String, Order> storage = new HashMap<>();
     
@@ -935,12 +943,13 @@ public class InMemoryOrderRepository implements OrderRepository {
 OrderRepository testRepo = new InMemoryOrderRepository();
 OrderService service = new OrderService(testRepo);
 service.createOrder(...); // ✅ Chạy mà không cần database thật`
-
+```
 ## **Ví dụ: Notification**
 
 Java
 
-`// Xấu
+```Java
+// Xấu
 public class User {
     public void register(String email) {
         // ... validate ...
@@ -992,12 +1001,14 @@ user.register("test@example.com");
 NotificationService smsService = new SMSNotificationService();
 User user2 = new User(smsService);
 user2.register("test@example.com");`
+```
 
 ## **Bài tập**
 
 Java
 
-`public class PaymentProcessor {
+```Java
+public class PaymentProcessor {
     public void process(double amount) {
         // Hard-code gọi Stripe API
         StripeAPI stripe = new StripeAPI();
@@ -1009,7 +1020,8 @@ public class StripeAPI {
     public void charge(double amount) {
         // Call Stripe
     }
-}`
+}
+```
 
 ### **Hãy trả lời**
 
