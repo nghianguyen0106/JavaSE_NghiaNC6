@@ -1091,7 +1091,8 @@ Cho đoạn code sau, hãy:
 
 Java
 
-`public class PaymentService {
+```Java
+public class PaymentService {
     
     public void processPayment(Order order, String paymentMethod) {
         // Validate
@@ -1132,7 +1133,8 @@ Java
         // Log
         System.out.println("Payment processed for order " + order.getId());
     }
-}`
+}
+```
 
 ## **Sản phẩm cần nộp**
 

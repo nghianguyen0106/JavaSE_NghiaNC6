@@ -26,7 +26,8 @@ Mentee cần trả lời được:
 
 Text
 
-`Frameworks & Drivers
+```Text
+Frameworks & Drivers
     REST Controller
     Database
     Message Broker
@@ -41,8 +42,8 @@ Application
 Domain
     Entities
     Value Objects
-    Business Rules`
-
+    Business Rules
+```
 ## **Yêu cầu thực hành**
 
 Tạo project theo cấu trúc:
@@ -105,7 +106,8 @@ Ghi nhớ 1 ý chính:
 **Inner layer không biết về outer layer. Outer layer có thể biết về inner layer.**
 
 **Flow:**
-`┌────────────────────────────────────┐
+```Text
+┌─────────────────────────────────────┐
 │     Frameworks & Drivers            │ ← Outer (Framework, DB, UI)
 │  (Spring, JPA, REST, Message)       │
 └─────────────────────────────────────┘
@@ -123,16 +125,19 @@ Ghi nhớ 1 ý chính:
 ┌─────────────────────────────────────┐
 │      Enterprise Business Rules      │ ← Domain Entities, Value Objects
 │     (Entities, Value Objects)       │
-└─────────────────────────────────────┘`
+└─────────────────────────────────────┘
+```
 
 ## **Dependency Flow**
 
 **Flow:**
 
-`Controller  →  Use Case  →  Domain Entity  ← Repository Interface
+```Text
+Controller  →  Use Case  →  Domain Entity  ← Repository Interface
     ↓            ↓             ↑                 (Inner)
   Spring        Business      Business
-  (Outer)       Logic          Rules`
+  (Outer)       Logic          Rules
+```
 
 **Quy tắc:**
 
@@ -145,7 +150,8 @@ Ghi nhớ 1 ý chính:
 
 Java
 
-`// ❌ Domain import JPA (Outer layer)
+```Java
+// ❌ Domain import JPA (Outer layer)
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -184,7 +190,8 @@ public class OrderController {
         Order order = new Order(request.getId(), total);
         // database.save(order);
     }
-}`
+}
+```
 
 ## **Ví dụ đúng (Tuân thủ Dependency Rule)**
 
