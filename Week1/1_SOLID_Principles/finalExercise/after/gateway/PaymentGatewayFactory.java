@@ -8,11 +8,11 @@ public class PaymentGatewayFactory {
 
     public PaymentGatewayFactory(
             StripePaymentGateway stripePaymentGateway,
-            PaypalPaymentGateway payplaPaymentGateway,
+            PaypalPaymentGateway paypalPaymentGateway,
             BankPaymentGateway bankPaymentGateway) {
         this.paymentGateways = Map.of(
                 PaymentMethod.CREDIT_CARD, stripePaymentGateway,
-                PaymentMethod.PAYPAL, payplaPaymentGateway,
+                PaymentMethod.PAYPAL, paypalPaymentGateway,
                 PaymentMethod.BANK, bankPaymentGateway);
     }
 
