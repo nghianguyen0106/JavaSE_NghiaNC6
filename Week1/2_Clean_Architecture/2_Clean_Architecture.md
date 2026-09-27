@@ -106,7 +106,7 @@ Ghi nhớ 1 ý chính:
 **Inner layer không biết về outer layer. Outer layer có thể biết về inner layer.**
 
 **Flow:**
-```Text
+```mermaid
 ┌─────────────────────────────────────┐
 │     Frameworks & Drivers            │ ← Outer (Framework, DB, UI)
 │  (Spring, JPA, REST, Message)       │
@@ -342,7 +342,8 @@ public class JpaOrderRepository implements OrderRepository {
 
 Java
 
-`// Domain Entity
+```Java
+// Domain Entity
 public class Order {
     private final OrderId id;
     private final List<OrderItem> items;
@@ -412,7 +413,8 @@ public class DomainException extends RuntimeException {
     public DomainException(String message) {
         super(message);
     }
-}`
+}
+```
 
 ## **Layer 2: Application (Use Cases & Interactors)**
 
@@ -436,7 +438,8 @@ public class DomainException extends RuntimeException {
 
 Java
 
-`// Use Case Input (Command)
+```Java
+// Use Case Input (Command)
 public class CreateOrderCommand {
     private final String orderId;
     private final List<OrderItemCommand> items;
@@ -515,7 +518,8 @@ public class CreateOrderUseCase {
             cmd.getPrice()
         );
     }
-}`
+}
+```
 
 ## **Layer 3: Interface Adapters (Controllers, Repositories)**
 
@@ -539,7 +543,8 @@ public class CreateOrderUseCase {
 
 Java
 
-`// Controller (HTTP Adapter)
+```Java
+// Controller (HTTP Adapter)
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -647,7 +652,8 @@ public class OrderItemRequest {
     private double price;
     
     // getters, setters
-}`
+}
+```
 
 ## **Layer 4: Frameworks & Drivers**
 
@@ -670,7 +676,8 @@ public class OrderItemRequest {
 
 Java
 
-`// Spring Configuration
+```Java
+// Spring Configuration
 @Configuration
 public class ApplicationConfig {
     
@@ -704,7 +711,8 @@ public class DataSourceConfig {
         config.setPassword("password");
         return new HikariDataSource(config);
     }
-}`
+}
+```
 
 ---
 
@@ -712,7 +720,9 @@ public class DataSourceConfig {
 
 **Flow**
 
-`┌────────────────────────────────────────┐
+```mermaid
+
+┌─────────────────────────────────────────┐
 │        Frameworks & Drivers             │
 │  (Spring Config, JPA, HTTP Server)      │
 ├─────────────────────────────────────────┤
@@ -743,7 +753,8 @@ public class DataSourceConfig {
 │  │  - cancel()                      │   │
 │  │  - calculateTotal()              │   │
 │  └──────────────────────────────────┘   │
-└─────────────────────────────────────────┘`
+└─────────────────────────────────────────┘
+```
 
 ---
 
@@ -838,7 +849,8 @@ Code
 
 Java
 
-`// 1. HTTP Request DTO
+```Java
+// 1. HTTP Request DTO
 public class CreateOrderRequest {
     private String orderId;
     private List<OrderItemRequest> items;
@@ -1300,7 +1312,8 @@ public class ApplicationConfig {
             OrderValidator validator) {
         return new CreateOrderUseCase(orderRepository, validator);
     }
-}`
+}
+```
 
 ---
 
@@ -1310,7 +1323,8 @@ Một lợi ích lớn của Clean Architecture là **test dễ**.
 
 Java
 
-`// Test Domain
+```Java
+// Test Domain
 public class OrderTest {
     
     @Test
@@ -1437,7 +1451,8 @@ public class OrderControllerTest {
             .andExpect(jsonPath("$.orderId").value("ORD123"))
             .andExpect(jsonPath("$.total").value(200.0));
     }
-}`
+}
+```
 
 ---
 

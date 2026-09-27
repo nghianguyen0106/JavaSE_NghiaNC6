@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.example.order.adapter.in.web.OrderControllerTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.426 s -- in com.example.order.adapter.in.web.OrderControllerTest
