@@ -91,7 +91,8 @@ Text
 
 Text
 
-`┌──────────────────────────────────────────────────────────────────────┐
+```Text
+┌──────────────────────────────────────────────────────────────────────┐
 │                          EXTERNAL WORLD                              │
 │  (HTTP, CLI, Message Broker, Database, Email, Payment Gateway)       │
 └──────────────────────────────────────────────────────────────────────┘
@@ -145,7 +146,24 @@ Text
    │  │                                                │        │
    │  └────────────────────────────────────────────────┘        │
    │                                                              │
-   └──────────────────────────────────────────────────────────────┘`
+   └──────────────────────────────────────────────────────────────┘
+   ```
+
+   ```Text
+   [External Actor]                     HEXAGONAL CORE                       [External Service]
+HTTP Client / CLI                     (Pure Java)                        Database / Mailer
+       │                                                                         ▲
+       ▼                                                                         │
+┌──────────────┐   gọi    ┌──────────────────┐       gọi       ┌───────────────┐ │ implement
+│ Input Adapter│ ───────> │    Input Port    │ ──────────────> │  Output Port  │ │
+│ (Controller) │          │  (UseCase Interf)│                 │ (Repo Interf) │ ┼─────────────
+└──────────────┘          └──────────────────┘                 └───────────────┘ │
+                                   ▲                                             │
+                       implement   │                                    ┌────────────────┐
+                          ┌──────────────────┐                          │ Output Adapter │
+                          │ApplicationService│                          │(JpaOrderRepo)  │
+                          └──────────────────┘                          └────────────────┘
+```
 
 # **So sánh: Hexagonal vs Clean Architecture**
 
@@ -205,7 +223,8 @@ Bạn có thể copy toàn bộ code dưới đây và chạy:
 
 XML
 
-`<project>
+```XML
+<project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.example</groupId>
     <artifactId>order-service</artifactId>
@@ -240,13 +259,15 @@ XML
             <scope>test</scope>
         </dependency>
     </dependencies>
-</project>`
+</project>
+```
 
 ## **Domain Layer**
 
 Java
 
-`// com.example.order.domain.model.OrderId
+```Java
+// com.example.order.domain.model.OrderId
 public class OrderId {
     private final String value;
     
@@ -380,13 +401,15 @@ public class DomainException extends RuntimeException {
     public DomainException(String message) {
         super(message);
     }
-}`
+}
+```
 
 ## **Application Layer**
 
 Java
 
-`// com.example.order.application.port.in.CreateOrderCommand
+```Java
+// com.example.order.application.port.in.CreateOrderCommand
 public class CreateOrderCommand {
     private final String orderId;
     private final List<CreateOrderItemCommand> items;
