@@ -41,8 +41,8 @@ Trong thực tế, đường truyền mạng giữa các máy chủ **chắc ch�
 
 | Lựa chọn | Cơ chế xử lý | Khi nào dùng? | Ví dụ thực tế |
 | :---: | :--- | :--- | :--- |
-| **CP System** | Ưu tiên **C** $\rightarrow$ **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
-| **AP System** | Ưu tiên **A** $\rightarrow$ **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
+| **CP System** | Ưu tiên **C** => **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
+| **AP System** | Ưu tiên **A** => **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
 
 ---
 
@@ -88,7 +88,7 @@ Không phải lúc nào ta cũng cần dữ liệu phải đồng bộ 100% ngay
 | :--- | :--- | :--- |
 | **1. Strong Consistency** | Ghi xong là **ngay lập tức 100% mọi nơi** đọc ra đều thấy dữ liệu mới nhất. | Rút tiền ATM: Tài khoản còn 1 triệu, rút 1 triệu thì 1 giây sau xem ở đâu cũng phải thấy số dư = 0. |
 | **2. Eventual Consistency** | Dữ liệu cập nhật sẽ lan truyền từ từ; các node có thể lệch nhau vài giây, nhưng **cuối cùng sẽ bằng nhau**. | Lượt View/Like video Youtube: Bạn thấy 1.000 view, bạn của bạn thấy 995 view, vài phút sau cả hai đều thấy 1.050 view. |
-| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** $\rightarrow$ Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
+| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** => Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
 | **4. Monotonic Reads** | Người dùng đọc dữ liệu **không bao giờ bị "tua ngược về quá khứ"**. | Lần 1 xem đơn hàng thấy `CONFIRMED`. Bấm F5 lần 2 tuyệt đối không được giật lùi về trạng thái cũ `PENDING`. |
 | **5. Causal Consistency** | Các sự kiện có quan hệ **nguyên nhân - kết quả** phải hiển thị đúng thứ tự logic. | Phải nhìn thấy **Bài đăng (Post)** trước rồi mới nhìn thấy **Bình luận (Comment)** của bài đăng đó. |
 
@@ -132,9 +132,9 @@ Có 3 cách để Primary đồng bộ dữ liệu sang các Replicas:
 
 | Tiêu chí | **Synchronous (Đồng bộ)** | **Asynchronous (Bất đồng bộ)** | **Semi-synchronous (Bán đồng bộ)** |
 | :--- | :--- | :--- | :--- |
-| **Cơ chế** | Primary ghi xong $\rightarrow$ Chờ **TẤT CẢ** Replica xác nhận (ACK) $\rightarrow$ Mới báo thành công cho khách. | Primary ghi xong $\rightarrow$ **Báo thành công ngay lập tức** $\rightarrow$ Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
+| **Cơ chế** | Primary ghi xong => Chờ **TẤT CẢ** Replica xác nhận (ACK) => Mới báo thành công cho khách. | Primary ghi xong => **Báo thành công ngay lập tức** => Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
 | **Tốc độ ghi (Latency)** | **Chậm nhất** (phụ thuộc vào node mạng chậm nhất). | **Nhanh nhất** (không phải chờ ai). | **Cân bằng** (rất nhanh). |
-| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica $\rightarrow$ Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
+| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica => Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
 | **Use case phù hợp** | Giao dịch tài chính, thanh toán cốt lõi. | Ghi log hệ thống, lượt xem video, telemetry. | Hệ thống E-commerce hiện đại, MySQL/Postgres HA. |
 
 ---
@@ -180,15 +180,15 @@ Là **cột dữ liệu** được chọn để thuật toán quyết định d�
    - *Nhược điểm:* Không thể truy vấn theo khoảng (`WHERE age BETWEEN 20 AND 30` phải quét tất cả các Shard).
 2. **Range-Based Sharding:** Chia theo dải giá trị (ví dụ ID từ 1 - 1.000.000 vào Shard 1; 1.000.001 - 2.000.000 vào Shard 2).
    - *Ưu điểm:* Dễ hiểu, query theo khoảng cực nhanh.
-   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn $\rightarrow$ Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
+   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn => Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
 3. **Directory-Based Sharding:** Dùng 1 bảng tra cứu riêng (*Lookup Service*) để tra xem ID này nằm ở Shard nào.
    - *Ưu điểm:* Rất linh hoạt, muốn chuyển khách hàng VIP sang server xịn lúc nào cũng được.
    - *Nhược điểm:* Bảng tra cứu trở thành điểm nghẽn cổ chai.
 
 ### 2. Bốn thách thức "ác mộng" khi làm Sharding
 * **🔥 Hot Spot / Hot Shard:** Một Shard bị quá tải traffic trong khi các Shard khác ngồi chơi (ví dụ: Shard chứa tài khoản của Sơn Tùng M-TP hoặc một công ty lớn trong hệ thống SaaS).
-* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại $\rightarrow$ Cực kỳ chậm!
-* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 $\rightarrow$ Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
+* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại => Cực kỳ chậm!
+* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 => Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
 * **🚚 Re-sharding (Tăng thêm Shard):** Khi dữ liệu tăng, muốn nâng từ 4 Shard lên 8 Shard thì phải di chuyển hàng Terabyte dữ liệu giữa các máy chủ mà không được làm sập hệ thống (Zero-downtime migration).
 
 ---
@@ -254,8 +254,8 @@ Trong thực tế, đường truyền mạng giữa các máy chủ **chắc ch�
 
 | Lựa chọn | Cơ chế xử lý | Khi nào dùng? | Ví dụ thực tế |
 | :---: | :--- | :--- | :--- |
-| **CP System** | Ưu tiên **C** $\rightarrow$ **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
-| **AP System** | Ưu tiên **A** $\rightarrow$ **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
+| **CP System** | Ưu tiên **C** => **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
+| **AP System** | Ưu tiên **A** => **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
 
 ---
 
@@ -301,7 +301,7 @@ Không phải lúc nào ta cũng cần dữ liệu phải đồng bộ 100% ngay
 | :--- | :--- | :--- |
 | **1. Strong Consistency** | Ghi xong là **ngay lập tức 100% mọi nơi** đọc ra đều thấy dữ liệu mới nhất. | Rút tiền ATM: Tài khoản còn 1 triệu, rút 1 triệu thì 1 giây sau xem ở đâu cũng phải thấy số dư = 0. |
 | **2. Eventual Consistency** | Dữ liệu cập nhật sẽ lan truyền từ từ; các node có thể lệch nhau vài giây, nhưng **cuối cùng sẽ bằng nhau**. | Lượt View/Like video Youtube: Bạn thấy 1.000 view, bạn của bạn thấy 995 view, vài phút sau cả hai đều thấy 1.050 view. |
-| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** $\rightarrow$ Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
+| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** => Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
 | **4. Monotonic Reads** | Người dùng đọc dữ liệu **không bao giờ bị "tua ngược về quá khứ"**. | Lần 1 xem đơn hàng thấy `CONFIRMED`. Bấm F5 lần 2 tuyệt đối không được giật lùi về trạng thái cũ `PENDING`. |
 | **5. Causal Consistency** | Các sự kiện có quan hệ **nguyên nhân - kết quả** phải hiển thị đúng thứ tự logic. | Phải nhìn thấy **Bài đăng (Post)** trước rồi mới nhìn thấy **Bình luận (Comment)** của bài đăng đó. |
 
@@ -345,9 +345,9 @@ Có 3 cách để Primary đồng bộ dữ liệu sang các Replicas:
 
 | Tiêu chí | **Synchronous (Đồng bộ)** | **Asynchronous (Bất đồng bộ)** | **Semi-synchronous (Bán đồng bộ)** |
 | :--- | :--- | :--- | :--- |
-| **Cơ chế** | Primary ghi xong $\rightarrow$ Chờ **TẤT CẢ** Replica xác nhận (ACK) $\rightarrow$ Mới báo thành công cho khách. | Primary ghi xong $\rightarrow$ **Báo thành công ngay lập tức** $\rightarrow$ Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
+| **Cơ chế** | Primary ghi xong => Chờ **TẤT CẢ** Replica xác nhận (ACK) => Mới báo thành công cho khách. | Primary ghi xong => **Báo thành công ngay lập tức** => Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
 | **Tốc độ ghi (Latency)** | **Chậm nhất** (phụ thuộc vào node mạng chậm nhất). | **Nhanh nhất** (không phải chờ ai). | **Cân bằng** (rất nhanh). |
-| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica $\rightarrow$ Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
+| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica => Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
 | **Use case phù hợp** | Giao dịch tài chính, thanh toán cốt lõi. | Ghi log hệ thống, lượt xem video, telemetry. | Hệ thống E-commerce hiện đại, MySQL/Postgres HA. |
 
 ---
@@ -393,15 +393,15 @@ Là **cột dữ liệu** được chọn để thuật toán quyết định d�
    - *Nhược điểm:* Không thể truy vấn theo khoảng (`WHERE age BETWEEN 20 AND 30` phải quét tất cả các Shard).
 2. **Range-Based Sharding:** Chia theo dải giá trị (ví dụ ID từ 1 - 1.000.000 vào Shard 1; 1.000.001 - 2.000.000 vào Shard 2).
    - *Ưu điểm:* Dễ hiểu, query theo khoảng cực nhanh.
-   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn $\rightarrow$ Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
+   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn => Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
 3. **Directory-Based Sharding:** Dùng 1 bảng tra cứu riêng (*Lookup Service*) để tra xem ID này nằm ở Shard nào.
    - *Ưu điểm:* Rất linh hoạt, muốn chuyển khách hàng VIP sang server xịn lúc nào cũng được.
    - *Nhược điểm:* Bảng tra cứu trở thành điểm nghẽn cổ chai.
 
 ### 2. Bốn thách thức "ác mộng" khi làm Sharding
 * **🔥 Hot Spot / Hot Shard:** Một Shard bị quá tải traffic trong khi các Shard khác ngồi chơi (ví dụ: Shard chứa tài khoản của Sơn Tùng M-TP hoặc một công ty lớn trong hệ thống SaaS).
-* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại $\rightarrow$ Cực kỳ chậm!
-* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 $\rightarrow$ Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
+* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại => Cực kỳ chậm!
+* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 => Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
 * **🚚 Re-sharding (Tăng thêm Shard):** Khi dữ liệu tăng, muốn nâng từ 4 Shard lên 8 Shard thì phải di chuyển hàng Terabyte dữ liệu giữa các máy chủ mà không được làm sập hệ thống (Zero-downtime migration).
 
 ---
@@ -467,8 +467,8 @@ Trong thực tế, đường truyền mạng giữa các máy chủ **chắc ch�
 
 | Lựa chọn | Cơ chế xử lý | Khi nào dùng? | Ví dụ thực tế |
 | :---: | :--- | :--- | :--- |
-| **CP System** | Ưu tiên **C** $\rightarrow$ **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
-| **AP System** | Ưu tiên **A** $\rightarrow$ **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
+| **CP System** | Ưu tiên **C** => **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
+| **AP System** | Ưu tiên **A** => **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
 
 ---
 
@@ -514,7 +514,7 @@ Không phải lúc nào ta cũng cần dữ liệu phải đồng bộ 100% ngay
 | :--- | :--- | :--- |
 | **1. Strong Consistency** | Ghi xong là **ngay lập tức 100% mọi nơi** đọc ra đều thấy dữ liệu mới nhất. | Rút tiền ATM: Tài khoản còn 1 triệu, rút 1 triệu thì 1 giây sau xem ở đâu cũng phải thấy số dư = 0. |
 | **2. Eventual Consistency** | Dữ liệu cập nhật sẽ lan truyền từ từ; các node có thể lệch nhau vài giây, nhưng **cuối cùng sẽ bằng nhau**. | Lượt View/Like video Youtube: Bạn thấy 1.000 view, bạn của bạn thấy 995 view, vài phút sau cả hai đều thấy 1.050 view. |
-| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** $\rightarrow$ Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
+| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** => Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
 | **4. Monotonic Reads** | Người dùng đọc dữ liệu **không bao giờ bị "tua ngược về quá khứ"**. | Lần 1 xem đơn hàng thấy `CONFIRMED`. Bấm F5 lần 2 tuyệt đối không được giật lùi về trạng thái cũ `PENDING`. |
 | **5. Causal Consistency** | Các sự kiện có quan hệ **nguyên nhân - kết quả** phải hiển thị đúng thứ tự logic. | Phải nhìn thấy **Bài đăng (Post)** trước rồi mới nhìn thấy **Bình luận (Comment)** của bài đăng đó. |
 
@@ -558,9 +558,9 @@ Có 3 cách để Primary đồng bộ dữ liệu sang các Replicas:
 
 | Tiêu chí | **Synchronous (Đồng bộ)** | **Asynchronous (Bất đồng bộ)** | **Semi-synchronous (Bán đồng bộ)** |
 | :--- | :--- | :--- | :--- |
-| **Cơ chế** | Primary ghi xong $\rightarrow$ Chờ **TẤT CẢ** Replica xác nhận (ACK) $\rightarrow$ Mới báo thành công cho khách. | Primary ghi xong $\rightarrow$ **Báo thành công ngay lập tức** $\rightarrow$ Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
+| **Cơ chế** | Primary ghi xong => Chờ **TẤT CẢ** Replica xác nhận (ACK) => Mới báo thành công cho khách. | Primary ghi xong => **Báo thành công ngay lập tức** => Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
 | **Tốc độ ghi (Latency)** | **Chậm nhất** (phụ thuộc vào node mạng chậm nhất). | **Nhanh nhất** (không phải chờ ai). | **Cân bằng** (rất nhanh). |
-| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica $\rightarrow$ Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
+| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica => Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
 | **Use case phù hợp** | Giao dịch tài chính, thanh toán cốt lõi. | Ghi log hệ thống, lượt xem video, telemetry. | Hệ thống E-commerce hiện đại, MySQL/Postgres HA. |
 
 ---
@@ -606,7 +606,7 @@ Là **cột dữ liệu** được chọn để thuật toán quyết định d�
    - *Nhược điểm:* Không thể truy vấn theo khoảng (`WHERE age BETWEEN 20 AND 30` phải quét tất cả các Shard).
 2. **Range-Based Sharding:** Chia theo dải giá trị (ví dụ ID từ 1 - 1.000.000 vào Shard 1; 1.000.001 - 2.000.000 vào Shard 2).
    - *Ưu điểm:* Dễ hiểu, query theo khoảng cực nhanh.
-   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn $\rightarrow$ Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
+   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn => Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
 3. **Directory-Based Sharding:** Dùng 1 bảng tra cứu riêng (*Lookup Service*) để tra xem ID này nằm ởListed directory Week2
 Viewed 1_CAP_Theorem.md:1-75
 Viewed 2_PACELC_Theorem.md:1-65
@@ -659,8 +659,8 @@ Trong thực tế, đường truyền mạng giữa các máy chủ **chắc ch�
 
 | Lựa chọn | Cơ chế xử lý | Khi nào dùng? | Ví dụ thực tế |
 | :---: | :--- | :--- | :--- |
-| **CP System** | Ưu tiên **C** $\rightarrow$ **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
-| **AP System** | Ưu tiên **A** $\rightarrow$ **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
+| **CP System** | Ưu tiên **C** => **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
+| **AP System** | Ưu tiên **A** => **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
 
 ---
 
@@ -706,7 +706,7 @@ Không phải lúc nào ta cũng cần dữ liệu phải đồng bộ 100% ngay
 | :--- | :--- | :--- |
 | **1. Strong Consistency** | Ghi xong là **ngay lập tức 100% mọi nơi** đọc ra đều thấy dữ liệu mới nhất. | Rút tiền ATM: Tài khoản còn 1 triệu, rút 1 triệu thì 1 giây sau xem ở đâu cũng phải thấy số dư = 0. |
 | **2. Eventual Consistency** | Dữ liệu cập nhật sẽ lan truyền từ từ; các node có thể lệch nhau vài giây, nhưng **cuối cùng sẽ bằng nhau**. | Lượt View/Like video Youtube: Bạn thấy 1.000 view, bạn của bạn thấy 995 view, vài phút sau cả hai đều thấy 1.050 view. |
-| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** $\rightarrow$ Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
+| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** => Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
 | **4. Monotonic Reads** | Người dùng đọc dữ liệu **không bao giờ bị "tua ngược về quá khứ"**. | Lần 1 xem đơn hàng thấy `CONFIRMED`. Bấm F5 lần 2 tuyệt đối không được giật lùi về trạng thái cũ `PENDING`. |
 | **5. Causal Consistency** | Các sự kiện có quan hệ **nguyên nhân - kết quả** phải hiển thị đúng thứ tự logic. | Phải nhìn thấy **Bài đăng (Post)** trước rồi mới nhìn thấy **Bình luận (Comment)** của bài đăng đó. |
 
@@ -750,9 +750,9 @@ Có 3 cách để Primary đồng bộ dữ liệu sang các Replicas:
 
 | Tiêu chí | **Synchronous (Đồng bộ)** | **Asynchronous (Bất đồng bộ)** | **Semi-synchronous (Bán đồng bộ)** |
 | :--- | :--- | :--- | :--- |
-| **Cơ chế** | Primary ghi xong $\rightarrow$ Chờ **TẤT CẢ** Replica xác nhận (ACK) $\rightarrow$ Mới báo thành công cho khách. | Primary ghi xong $\rightarrow$ **Báo thành công ngay lập tức** $\rightarrow$ Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
+| **Cơ chế** | Primary ghi xong => Chờ **TẤT CẢ** Replica xác nhận (ACK) => Mới báo thành công cho khách. | Primary ghi xong => **Báo thành công ngay lập tức** => Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
 | **Tốc độ ghi (Latency)** | **Chậm nhất** (phụ thuộc vào node mạng chậm nhất). | **Nhanh nhất** (không phải chờ ai). | **Cân bằng** (rất nhanh). |
-| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica $\rightarrow$ Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
+| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica => Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
 | **Use case phù hợp** | Giao dịch tài chính, thanh toán cốt lõi. | Ghi log hệ thống, lượt xem video, telemetry. | Hệ thống E-commerce hiện đại, MySQL/Postgres HA. |
 
 ---
@@ -798,15 +798,15 @@ Là **cột dữ liệu** được chọn để thuật toán quyết định d�
    - *Nhược điểm:* Không thể truy vấn theo khoảng (`WHERE age BETWEEN 20 AND 30` phải quét tất cả các Shard).
 2. **Range-Based Sharding:** Chia theo dải giá trị (ví dụ ID từ 1 - 1.000.000 vào Shard 1; 1.000.001 - 2.000.000 vào Shard 2).
    - *Ưu điểm:* Dễ hiểu, query theo khoảng cực nhanh.
-   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn $\rightarrow$ Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
+   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn => Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
 3. **Directory-Based Sharding:** Dùng 1 bảng tra cứu riêng (*Lookup Service*) để tra xem ID này nằm ở Shard nào.
    - *Ưu điểm:* Rất linh hoạt, muốn chuyển khách hàng VIP sang server xịn lúc nào cũng được.
    - *Nhược điểm:* Bảng tra cứu trở thành điểm nghẽn cổ chai.
 
 ### 2. Bốn thách thức "ác mộng" khi làm Sharding
 * **🔥 Hot Spot / Hot Shard:** Một Shard bị quá tải traffic trong khi các Shard khác ngồi chơi (ví dụ: Shard chứa tài khoản của Sơn Tùng M-TP hoặc một công ty lớn trong hệ thống SaaS).
-* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại $\rightarrow$ Cực kỳ chậm!
-* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 $\rightarrow$ Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
+* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại => Cực kỳ chậm!
+* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 => Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
 * **🚚 Re-sharding (Tăng thêm Shard):** Khi dữ liệu tăng, muốn nâng từ 4 Shard lên 8 Shard thì phải di chuyển hàng Terabyte dữ liệu giữa các máy chủ mà không được làm sập hệ thống (Zero-downtime migration).
 
 ---
@@ -872,8 +872,8 @@ Trong thực tế, đường truyền mạng giữa các máy chủ **chắc ch�
 
 | Lựa chọn | Cơ chế xử lý | Khi nào dùng? | Ví dụ thực tế |
 | :---: | :--- | :--- | :--- |
-| **CP System** | Ưu tiên **C** $\rightarrow$ **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
-| **AP System** | Ưu tiên **A** $\rightarrow$ **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
+| **CP System** | Ưu tiên **C** => **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
+| **AP System** | Ưu tiên **A** => **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
 
 ---
 
@@ -919,7 +919,7 @@ Không phải lúc nào ta cũng cần dữ liệu phải đồng bộ 100% ngay
 | :--- | :--- | :--- |
 | **1. Strong Consistency** | Ghi xong là **ngay lập tức 100% mọi nơi** đọc ra đều thấy dữ liệu mới nhất. | Rút tiền ATM: Tài khoản còn 1 triệu, rút 1 triệu thì 1 giây sau xem ở đâu cũng phải thấy số dư = 0. |
 | **2. Eventual Consistency** | Dữ liệu cập nhật sẽ lan truyền từ từ; các node có thể lệch nhau vài giây, nhưng **cuối cùng sẽ bằng nhau**. | Lượt View/Like video Youtube: Bạn thấy 1.000 view, bạn của bạn thấy 995 view, vài phút sau cả hai đều thấy 1.050 view. |
-| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** $\rightarrow$ Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
+| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** => Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
 | **4. Monotonic Reads** | Người dùng đọc dữ liệu **không bao giờ bị "tua ngược về quá khứ"**. | Lần 1 xem đơn hàng thấy `CONFIRMED`. Bấm F5 lần 2 tuyệt đối không được giật lùi về trạng thái cũ `PENDING`. |
 | **5. Causal Consistency** | Các sự kiện có quan hệ **nguyên nhân - kết quả** phải hiển thị đúng thứ tự logic. | Phải nhìn thấy **Bài đăng (Post)** trước rồi mới nhìn thấy **Bình luận (Comment)** của bài đăng đó. |
 
@@ -963,9 +963,9 @@ Có 3 cách để Primary đồng bộ dữ liệu sang các Replicas:
 
 | Tiêu chí | **Synchronous (Đồng bộ)** | **Asynchronous (Bất đồng bộ)** | **Semi-synchronous (Bán đồng bộ)** |
 | :--- | :--- | :--- | :--- |
-| **Cơ chế** | Primary ghi xong $\rightarrow$ Chờ **TẤT CẢ** Replica xác nhận (ACK) $\rightarrow$ Mới báo thành công cho khách. | Primary ghi xong $\rightarrow$ **Báo thành công ngay lập tức** $\rightarrow$ Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
+| **Cơ chế** | Primary ghi xong => Chờ **TẤT CẢ** Replica xác nhận (ACK) => Mới báo thành công cho khách. | Primary ghi xong => **Báo thành công ngay lập tức** => Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
 | **Tốc độ ghi (Latency)** | **Chậm nhất** (phụ thuộc vào node mạng chậm nhất). | **Nhanh nhất** (không phải chờ ai). | **Cân bằng** (rất nhanh). |
-| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica $\rightarrow$ Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
+| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica => Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
 | **Use case phù hợp** | Giao dịch tài chính, thanh toán cốt lõi. | Ghi log hệ thống, lượt xem video, telemetry. | Hệ thống E-commerce hiện đại, MySQL/Postgres HA. |
 
 ---
@@ -1011,15 +1011,15 @@ Là **cột dữ liệu** được chọn để thuật toán quyết định d�
    - *Nhược điểm:* Không thể truy vấn theo khoảng (`WHERE age BETWEEN 20 AND 30` phải quét tất cả các Shard).
 2. **Range-Based Sharding:** Chia theo dải giá trị (ví dụ ID từ 1 - 1.000.000 vào Shard 1; 1.000.001 - 2.000.000 vào Shard 2).
    - *Ưu điểm:* Dễ hiểu, query theo khoảng cực nhanh.
-   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn $\rightarrow$ Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
+   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn => Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
 3. **Directory-Based Sharding:** Dùng 1 bảng tra cứu riêng (*Lookup Service*) để tra xem ID này nằm ở Shard nào.
    - *Ưu điểm:* Rất linh hoạt, muốn chuyển khách hàng VIP sang server xịn lúc nào cũng được.
    - *Nhược điểm:* Bảng tra cứu trở thành điểm nghẽn cổ chai.
 
 ### 2. Bốn thách thức "ác mộng" khi làm Sharding
 * **🔥 Hot Spot / Hot Shard:** Một Shard bị quá tải traffic trong khi các Shard khác ngồi chơi (ví dụ: Shard chứa tài khoản của Sơn Tùng M-TP hoặc một công ty lớn trong hệ thống SaaS).
-* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại $\rightarrow$ Cực kỳ chậm!
-* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 $\rightarrow$ Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
+* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại => Cực kỳ chậm!
+* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 => Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
 * **🚚 Re-sharding (Tăng thêm Shard):** Khi dữ liệu tăng, muốn nâng từ 4 Shard lên 8 Shard thì phải di chuyển hàng Terabyte dữ liệu giữa các máy chủ mà không được làm sập hệ thống (Zero-downtime migration).
 
 ---
@@ -1085,8 +1085,8 @@ Trong thực tế, đường truyền mạng giữa các máy chủ **chắc ch�
 
 | Lựa chọn | Cơ chế xử lý | Khi nào dùng? | Ví dụ thực tế |
 | :---: | :--- | :--- | :--- |
-| **CP System** | Ưu tiên **C** $\rightarrow$ **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
-| **AP System** | Ưu tiên **A** $\rightarrow$ **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
+| **CP System** | Ưu tiên **C** => **Thà từ chối phục vụ (hy sinh A) chứ không để dữ liệu bị sai lệch**. | Tiền bạc, tài chính, thanh toán, kho hàng. | **Chuyển tiền ngân hàng:** Nếu 2 server mất kết nối, hệ thống báo *"Dịch vụ tạm gián đoạn"* chứ tuyệt đối không cho chuyển tiền vì dễ bị trừ tiền 2 lần. |
+| **AP System** | Ưu tiên **A** => **Vẫn trả lời người dùng (hy sinh C), chấp nhận dữ liệu có thể bị trễ/cũ**. | Mạng xã hội, tin tức, giỏ hàng, xem video. | **Facebook / TikTok / YouTube:** Mất mạng giữa các server thì bạn vẫn lướt xem được video và bài post (dù có thể là bài đăng từ 5 phút trước). |
 
 ---
 
@@ -1132,7 +1132,7 @@ Không phải lúc nào ta cũng cần dữ liệu phải đồng bộ 100% ngay
 | :--- | :--- | :--- |
 | **1. Strong Consistency** | Ghi xong là **ngay lập tức 100% mọi nơi** đọc ra đều thấy dữ liệu mới nhất. | Rút tiền ATM: Tài khoản còn 1 triệu, rút 1 triệu thì 1 giây sau xem ở đâu cũng phải thấy số dư = 0. |
 | **2. Eventual Consistency** | Dữ liệu cập nhật sẽ lan truyền từ từ; các node có thể lệch nhau vài giây, nhưng **cuối cùng sẽ bằng nhau**. | Lượt View/Like video Youtube: Bạn thấy 1.000 view, bạn của bạn thấy 995 view, vài phút sau cả hai đều thấy 1.050 view. |
-| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** $\rightarrow$ Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
+| **3. Read-Your-Writes** | **Chính người vừa thực hiện thao tác** phải thấy được dữ liệu của mình vừa ghi, dù người khác có thể chưa thấy. | Bạn vừa đổi **Avatar Facebook** => Bấm F5 trang cá nhân bạn phải thấy ảnh mới ngay (dù bạn bè của bạn có thể 1 phút sau mới thấy). |
 | **4. Monotonic Reads** | Người dùng đọc dữ liệu **không bao giờ bị "tua ngược về quá khứ"**. | Lần 1 xem đơn hàng thấy `CONFIRMED`. Bấm F5 lần 2 tuyệt đối không được giật lùi về trạng thái cũ `PENDING`. |
 | **5. Causal Consistency** | Các sự kiện có quan hệ **nguyên nhân - kết quả** phải hiển thị đúng thứ tự logic. | Phải nhìn thấy **Bài đăng (Post)** trước rồi mới nhìn thấy **Bình luận (Comment)** của bài đăng đó. |
 
@@ -1176,9 +1176,9 @@ Có 3 cách để Primary đồng bộ dữ liệu sang các Replicas:
 
 | Tiêu chí | **Synchronous (Đồng bộ)** | **Asynchronous (Bất đồng bộ)** | **Semi-synchronous (Bán đồng bộ)** |
 | :--- | :--- | :--- | :--- |
-| **Cơ chế** | Primary ghi xong $\rightarrow$ Chờ **TẤT CẢ** Replica xác nhận (ACK) $\rightarrow$ Mới báo thành công cho khách. | Primary ghi xong $\rightarrow$ **Báo thành công ngay lập tức** $\rightarrow$ Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
+| **Cơ chế** | Primary ghi xong => Chờ **TẤT CẢ** Replica xác nhận (ACK) => Mới báo thành công cho khách. | Primary ghi xong => **Báo thành công ngay lập tức** => Dữ liệu truyền ngầm sang Replica sau. | Primary chỉ cần chờ **TỐI THIỂU 1 Replica** xác nhận (ACK) là báo thành công ngay. |
 | **Tốc độ ghi (Latency)** | **Chậm nhất** (phụ thuộc vào node mạng chậm nhất). | **Nhanh nhất** (không phải chờ ai). | **Cân bằng** (rất nhanh). |
-| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica $\rightarrow$ Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
+| **Nguy cơ mất dữ liệu** | **Bằng 0 (Zero Data Loss):** Đảm bảo an toàn tuyệt đối. | **Có rủi ro:** Nếu Primary chết khi dữ liệu chưa kịp gửi sang Replica => Mất dữ liệu! | **Gần như bằng 0:** Vì luôn có ít nhất 1 Replica giữ bản copy. |
 | **Use case phù hợp** | Giao dịch tài chính, thanh toán cốt lõi. | Ghi log hệ thống, lượt xem video, telemetry. | Hệ thống E-commerce hiện đại, MySQL/Postgres HA. |
 
 ---
@@ -1224,15 +1224,15 @@ Là **cột dữ liệu** được chọn để thuật toán quyết định d�
    - *Nhược điểm:* Không thể truy vấn theo khoảng (`WHERE age BETWEEN 20 AND 30` phải quét tất cả các Shard).
 2. **Range-Based Sharding:** Chia theo dải giá trị (ví dụ ID từ 1 - 1.000.000 vào Shard 1; 1.000.001 - 2.000.000 vào Shard 2).
    - *Ưu điểm:* Dễ hiểu, query theo khoảng cực nhanh.
-   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn $\rightarrow$ Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
+   - *Nhược điểm:* Dễ bị **Hot Spot** (người dùng mới đăng ký luôn có ID lớn => Toàn bộ lượt ghi mới dồn hết vào Shard cuối cùng).
 3. **Directory-Based Sharding:** Dùng 1 bảng tra cứu riêng (*Lookup Service*) để tra xem ID này nằm ở Shard nào.
    - *Ưu điểm:* Rất linh hoạt, muốn chuyển khách hàng VIP sang server xịn lúc nào cũng được.
    - *Nhược điểm:* Bảng tra cứu trở thành điểm nghẽn cổ chai.
 
 ### 2. Bốn thách thức "ác mộng" khi làm Sharding
 * **🔥 Hot Spot / Hot Shard:** Một Shard bị quá tải traffic trong khi các Shard khác ngồi chơi (ví dụ: Shard chứa tài khoản của Sơn Tùng M-TP hoặc một công ty lớn trong hệ thống SaaS).
-* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại $\rightarrow$ Cực kỳ chậm!
-* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 $\rightarrow$ Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
+* **🌐 Cross-Shard Query:** Cần dữ liệu từ nhiều Shard khác nhau (ví dụ: Tìm đơn hàng theo ngày). Hệ thống phải gửi request đến tất cả các Shard rồi gộp kết quả lại => Cực kỳ chậm!
+* **💳 Cross-Shard Transaction:** Chuyển tiền từ User ở Shard 1 sang User ở Shard 2 => Không thể dùng `@Transactional` của database thông thường, bắt buộc phải dùng **Saga Pattern** hoặc **2PC**.
 * **🚚 Re-sharding (Tăng thêm Shard):** Khi dữ liệu tăng, muốn nâng từ 4 Shard lên 8 Shard thì phải di chuyển hàng Terabyte dữ liệu giữa các máy chủ mà không được làm sập hệ thống (Zero-downtime migration).
 
 ---
