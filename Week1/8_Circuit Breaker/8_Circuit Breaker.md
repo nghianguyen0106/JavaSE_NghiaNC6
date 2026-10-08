@@ -127,7 +127,8 @@ Solution: STOP gọi Payment Service sớm!`
 
 Code
 
-`┌─────────────────┐
+```
+┌─────────────────┐
 │ Payment Service │  ← OUT OF MEMORY
 └────────┬────────┘
          ↓
@@ -156,7 +157,8 @@ Code
 └──────────────────┘
          ↓
    Cascading failure
-   propagates further`
+   propagates further
+```
 
 ## **Timeline**
 
@@ -197,7 +199,8 @@ Result: 20s downtime instead of 5s downtime!`
 
 Text
 
-`Status: ✓ OK
+```
+Status: ✓ OK
 Behavior: Pass requests through
 Flow:
   Request → Circuit Breaker (CLOSED) → Service
@@ -206,13 +209,15 @@ Flow:
                                            ↓
                                     Return response
                                            ↓
-                                      ✓ Success`
+                                      ✓ Success
+```
 
 **Ví dụ:**
 
 Java
 
-`// Payment Service is healthy
+```Java
+// Payment Service is healthy
 CircuitBreaker breaker = new CircuitBreaker();
 breaker.setState(State.CLOSED);
 
@@ -222,13 +227,15 @@ try {
     // ✓ Success: response received
 } catch (Exception e) {
     // If error: increment failure counter
-}`
+}
+```
 
 ### **State 2: OPEN (Blocked)**
 
 Text
 
-`Status: ✗ Service failing
+```
+Status: ✗ Service failing
 Behavior: Reject all requests immediately
 Flow:
   Request → Circuit Breaker (OPEN)
@@ -236,13 +243,15 @@ Flow:
             Reject immediately
             (no call to service)
                   ↓
-            Throw CircuitBreakerOpenException`
+            Throw CircuitBreakerOpenException
+```
 
 **Ví dụ:**
 
 Java
 
-`CircuitBreaker breaker = new CircuitBreaker();
+```Java
+CircuitBreaker breaker = new CircuitBreaker();
 breaker.setState(State.OPEN);
 
 try {
@@ -251,7 +260,8 @@ try {
     // ✗ Rejected immediately
     // Service was called 0 times (saved resources!)
     logger.warn("Circuit is OPEN, payment service unreachable");
-}`
+}
+```
 
 **Khi chuyển sang OPEN:**
 
@@ -262,7 +272,8 @@ try {
 
 Text
 
-`Status: ? Testing if service recovered
+```
+Status: ? Testing if service recovered
 Behavior: Allow limited test requests
 Flow:
   Request → Circuit Breaker (HALF-OPEN)
@@ -272,13 +283,15 @@ Flow:
               Call service
                   ↓
          Success → Go to CLOSED
-         Failure → Go back to OPEN`
+         Failure → Go back to OPEN
+```
 
 **Ví dụ:**
 
 Java
 
-`CircuitBreaker breaker = new CircuitBreaker();
+```Java
+CircuitBreaker breaker = new CircuitBreaker();
 breaker.setState(State.HALF_OPEN);
 
 // Circuit breaker allows 1 test request
@@ -292,13 +305,15 @@ try {
 } catch (Exception e) {
     breaker.setState(State.OPEN);  // Service still failing
     logger.warn("Circuit is OPEN again, service still unhealthy");
-}`
+}
+```
 
 ## **State Transition Diagram**
 
 Text
 
-        `┌──────────────────┐
+```
+        ┌──────────────────┐
         │     CLOSED       │
         │   ✓ OK, normal   │
         └────────┬─────────┘
@@ -326,7 +341,8 @@ Text
      Success            Failure
        │                   │
        ↓                   ↓
-    CLOSED              OPEN`
+    CLOSED              OPEN
+```
 
 ---
 
@@ -340,7 +356,8 @@ Text
 
 Java
 
-`// ============================================
+```Java
+// ============================================
 // FAILURE THRESHOLD
 // ============================================
 
@@ -387,7 +404,8 @@ try {
 }
 
 // After 5 failures: circuit is OPEN
-// All subsequent requests fail immediately`
+// All subsequent requests fail immediately
+```
 
 ### **2. Timeout Duration**
 
@@ -395,7 +413,8 @@ try {
 
 Java
 
-`// ============================================
+```Java
+// ============================================
 // TIMEOUT DURATION
 // ============================================
 
@@ -444,7 +463,8 @@ Instant now = 10:00:30
 10:00:30 - Timeout expired (30s)
 10:00:30 - Circuit transitions to HALF-OPEN
 10:00:31 - First request allowed (test request)
-10:00:31 - Success → Circuit closes (CLOSED)`
+10:00:31 - Success → Circuit closes (CLOSED)
+```
 
 ### **3. Success Threshold (in HALF-OPEN)**
 
@@ -452,7 +472,8 @@ Instant now = 10:00:30
 
 Java
 
-`// ============================================
+```Java
+// ============================================
 // SUCCESS THRESHOLD
 // ============================================
 
@@ -504,7 +525,8 @@ Request 2: Success (count = 2) → COUNT >= THRESHOLD
 OR
 
 Request 1: Success (count = 1) → HALF-OPEN
-Request 2: Failure (count = 0) → Circuit reopens → OPEN`
+Request 2: Failure (count = 0) → Circuit reopens → OPEN
+```
 
 ---
 
@@ -512,7 +534,8 @@ Request 2: Failure (count = 0) → Circuit reopens → OPEN`
 
 Java
 
-`// ============================================
+```Java
+// ============================================
 // CIRCUIT BREAKER CLASS
 // ============================================
 
@@ -640,7 +663,8 @@ public class CircuitBreakerOpenException extends RuntimeException {
     public CircuitBreakerOpenException(String message) {
         super(message);
     }
-}`
+}
+```
 
 ---
 
@@ -648,7 +672,8 @@ public class CircuitBreakerOpenException extends RuntimeException {
 
 Java
 
-`// ============================================
+```Java
+// ============================================
 // SERVICE CLIENT WITH CIRCUIT BREAKER
 // ============================================
 
@@ -734,7 +759,8 @@ public class HealthController {
             breaker.getSuccessCount()
         ));
     }
-}`
+}
+```
 
 ---
 
@@ -750,18 +776,21 @@ public class HealthController {
 
 Java
 
-`try {
+```Java
+try {
     paymentClient.charge(orderId, amount);
 } catch (CircuitBreakerOpenException e) {
     return ResponseEntity.status(503)
         .body(new ErrorResponse("Service temporarily unavailable"));
-}`
+}
+```
 
 ### **Fallback 2: Return Default/Cached Value**
 
 Java
 
-`@Service
+```Java
+@Service
 public class UserService {
     private final UserCache userCache;
     private final CircuitBreaker circuitBreaker;
@@ -777,13 +806,15 @@ public class UserService {
             return userCache.get(userId);
         }
     }
-}`
+}
+```
 
 ### **Fallback 3: Graceful Degradation**
 
 Java
 
-`@Service
+```Java
+@Service
 public class OrderService {
     private final InventoryClient inventoryClient;
     private final CircuitBreaker circuitBreaker;
@@ -799,13 +830,15 @@ public class OrderService {
             return orderRepository.findAll();
         }
     }
-}`
+}
+```
 
 ### **Fallback 4: Queue for Later Processing**
 
 Java
 
-`@Service
+```Java
+@Service
 public class EmailService {
     private final EmailClient emailClient;
     private final CircuitBreaker circuitBreaker;
@@ -822,7 +855,8 @@ public class EmailService {
             emailQueue.enqueue(email);
         }
     }
-}`
+}
+```
 
 ---
 
@@ -834,7 +868,8 @@ public class EmailService {
 
 Java
 
-`// ============================================
+```Java
+// ============================================
 // CIRCUIT BREAKER METRICS
 // ============================================
 
@@ -895,7 +930,8 @@ public class MetricsController {
   "failureCount": 5,
   "rejectionCount": 15,
   "failureRate": "0.50%"
-}`
+}
+```
 
 ---
 
@@ -915,7 +951,8 @@ public class MetricsController {
 
 Java
 
-`// ============================================
+```Java
+// ============================================
 // TIMEOUT + RETRY + CIRCUIT BREAKER
 // ============================================
 
@@ -997,7 +1034,8 @@ public class ResilientPaymentClient {
                e instanceof ConnectException ||
                e instanceof SocketException;
     }
-}`
+}
+```
 
 ---
 
@@ -1047,7 +1085,8 @@ public class ResilientPaymentClient {
 
 Java
 
-`// Command pattern
+```Java
+// Command pattern
 public class PaymentCommand extends HystrixCommand<PaymentResponse> {
     private String orderId;
     private double amount;
@@ -1072,13 +1111,15 @@ public class PaymentCommand extends HystrixCommand<PaymentResponse> {
 }
 
 // Usage
-PaymentResponse response = new PaymentCommand(orderId, amount, paymentService).execute();`
+PaymentResponse response = new PaymentCommand(orderId, amount, paymentService).execute();
+```
 
 ## **Resilience4j (Modern alternative)**
 
 Java
 
-`// Declarative style
+```Java
+// Declarative style
 @Service
 public class PaymentService {
     private final CircuitBreaker circuitBreaker;
@@ -1096,7 +1137,8 @@ public class PaymentService {
         logger.error("Payment service down", e);
         return new PaymentResponse("FALLBACK", false);
     }
-}`
+}
+```
 
 ---
 
