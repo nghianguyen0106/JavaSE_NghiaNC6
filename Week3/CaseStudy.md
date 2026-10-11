@@ -8,15 +8,18 @@ Công ty chuẩn bị flash sale cho một chiến dịch lớn.
 
 Business requirement:
 
-`- Hệ thống phải phục vụ 1,000 checkout requests/second.
+```
+- Hệ thống phải phục vụ 1,000 checkout requests/second.
 - Checkout p95 dưới 800ms.
 - Error rate dưới 1%.
 - Không oversell sản phẩm.
-- Không tạo duplicate order khi user retry.`
+- Không tạo duplicate order khi user retry.
+```
 
 Luồng checkout:
 
-`Client
+```Text
+Client
   ↓
 API Gateway
   ↓
@@ -24,19 +27,21 @@ Order Service
   ├─ Product Service: check product
   ├─ Inventory Service: reserve stock
   ├─ Payment Service: charge
-  └─ Order Database: save order`
-
+  └─ Order Database: save order
+```
 ---
 
 ## **2. Kiến trúc/kỹ thuật hiện tại**
 
 Team đã viết load test đơn giản:
 
-`- 100 virtual users.
+```
+- 100 virtual users.
 - Gọi POST /orders liên tục.
 - Chạy 2 phút.
 - Average response time khoảng 250ms.
-- Error rate gần 0%.`
+- Error rate gần 0%.
+```
 
 Team kết luận:
 
@@ -45,12 +50,14 @@ Team kết luận:
 
 Tuy nhiên test hiện tại có vấn đề:
 
-`- Chỉ nhìn average latency.
+```
+- Chỉ nhìn average latency.
 - Không có p95/p99.
 - Không theo dõi DB metrics.
 - Không dùng realistic ramp-up.
 - Không có test data gần production.
-- Không mô phỏng Product/Inventory/Payment latency.`
+- Không mô phỏng Product/Inventory/Payment latency.
+```
 
 ---
 
@@ -96,7 +103,8 @@ Q7. Test plan mới cần thay đổi những gì?`
 
 ## **5. Hướng xử lý**
 
-`- Average che giấu tail latency; một số user có thể chờ 7 giây dù average nhìn vẫn ổn.
+```
+- Average che giấu tail latency; một số user có thể chờ 7 giây dù average nhìn vẫn ổn.
 - Evidence cho DB bottleneck:
   + DB CPU 98–99%.
   + Connection pool chạm 100/100.
@@ -109,7 +117,8 @@ Q7. Test plan mới cần thay đổi những gì?`
   + Lock contention.
   + N+1 query.
   + Connection-pool wait time.
-- Retry payment nếu không backoff/idempotent có thể tạo traffic amplification và duplicate charge risk.`
+- Retry payment nếu không backoff/idempotent có thể tạo traffic amplification và duplicate charge risk.
+```
 
 Giải pháp theo thứ tự:
 
@@ -141,24 +150,26 @@ Order Service cần gọi Product Service để lấy product information trư�
 
 Expected API:
 
-`GET /api/products/{productId}`
+```Text
+GET /api/products/{productId}
+```
 
 Order Service cần response:
 
-JSON
-
-`{
+```JSON
+{
   "id": "P-100",
   "name": "Mechanical Keyboard",
   "price": 120.50,
   "available": true
-}`
+}
+```
 
 Business requirement:
 
-`- Không cho tạo order với product không available.
+- Không cho tạo order với product không available.
 - Giá trong order cần lấy từ Product Service.
-- Product team và Order team deploy độc lập.`
+- Product team và Order team deploy độc lập.
 
 ---
 
@@ -166,15 +177,15 @@ Business requirement:
 
 Order Service có unit test:
 
-Java
-
-`when(productClient.getProduct("P-100"))
+```Java
+when(productClient.getProduct("P-100"))
     .thenReturn(new ProductResponse(
         "P-100",
         "Mechanical Keyboard",
         120.50,
         true
-    ));`
+    ));
+```
 
 Test pass.
 
@@ -205,7 +216,8 @@ Product Service unit test vẫn xanh.
 
 Sau deploy:
 
-`Order Service gọi Product Service.
+```
+Order Service gọi Product Service.
 ↓
 Order Service parse response theo contract cũ.
 ↓
@@ -213,7 +225,8 @@ Order Service parse response theo contract cũ.
 ↓
 Nhiều order bị từ chối sai hoặc lỗi deserialize.
 ↓
-Checkout conversion giảm mạnh.`
+Checkout conversion giảm mạnh.
+```
 
 ---
 
@@ -247,7 +260,8 @@ Q7. Nếu Product Service cần đổi field, migration API an toàn sẽ làm s
 
 CDC flow:
 
-`1. Order Service viết contract:
+```
+1. Order Service viết contract:
    cần id, name, price, available.
 
 2. Contract được publish.
@@ -257,11 +271,13 @@ CDC flow:
 4. Nếu Product Service xóa available hoặc đổi name:
    provider verification fail.
 
-5. Deployment bị block hoặc bắt buộc có migration plan.`
+5. Deployment bị block hoặc bắt buộc có migration plan.
+```
 
 API evolution an toàn:
 
-`Version 1:
+```
+Version 1:
 {
   "id": "...",
   "name": "...",
@@ -278,10 +294,11 @@ Version transition:
   "unitPrice": 120.50,
   "available": true
 }
+```
 
 Sau khi tất cả consumer migrate:
 - deprecate field cũ;
-- remove ở version API mới hoặc sau thời gian công bố.`
+- remove ở version API mới hoặc sau thời gian công bố.
 
 Bài học:
 
@@ -296,40 +313,48 @@ Bài học:
 
 Order Service cần reserve inventory trước khi xác nhận order:
 
-`Create Order
+```
+Create Order
     ↓
 Reserve Inventory
     ↓
 Charge Payment
     ↓
-Confirm Order`
+Confirm Order
+```
 
 Business requirement:
 
-`- Checkout p95 dưới 1 giây.
+```
+- Checkout p95 dưới 1 giây.
 - Không oversell.
 - Nếu Inventory Service có sự cố, Order Service vẫn phải đáp ứng được
   một cách có kiểm soát.
-- Không được làm các API unrelated như Get Order bị ảnh hưởng.`
+- Không được làm các API unrelated như Get Order bị ảnh hưởng.
+```
 
 ---
 
 ## **2. Kiến trúc/kỹ thuật hiện tại**
 
-`Client
+```
+Client
   ↓
 Order Service
   ├─ synchronous HTTP call → Inventory Service
   ├─ synchronous HTTP call → Payment Service
-  └─ Order DB`
+  └─ Order DB
+```
 
 Current configuration:
 
-`- HTTP client timeout: 30 seconds.
+```
+- HTTP client timeout: 30 seconds.
 - Retry: 3 lần ngay lập tức.
 - Không có circuit breaker.
 - Checkout và Get Order dùng chung application thread pool.
-- Không có bulkhead/concurrency limit cho outbound Inventory call.`
+- Không có bulkhead/concurrency limit cho outbound Inventory call.
+```
 
 Team tin rằng:
 
@@ -344,18 +369,21 @@ Inventory Service bị chậm do database lock.
 
 Chaos simulation/production symptom:
 
-`- Inventory latency tăng từ 80ms lên 3–5 giây.
+```
+- Inventory latency tăng từ 80ms lên 3–5 giây.
 - Order Service giữ thread chờ Inventory.
 - Retry ngay lập tức tạo thêm call đến Inventory.
 - Thread pool Order Service bị đầy.
 - Get Order API, vốn không cần gọi Inventory, cũng bắt đầu timeout.
-- Checkout error rate tăng mạnh.`
+- Checkout error rate tăng mạnh.
+```
 
 ---
 
 ## **4. Câu hỏi dẫn dắt**
 
-`Q1. 30-second timeout có phải “an toàn” không? Vì sao?
+```
+Q1. 30-second timeout có phải “an toàn” không? Vì sao?
 
 Q2. Retry 3 lần ngay lập tức gây ảnh hưởng gì khi dependency đang chậm?
 
@@ -368,4 +396,46 @@ Q5. Bulkhead giải quyết vấn đề gì?
 Q6. Chaos experiment hợp lệ cho case này cần hypothesis, blast radius,
     abort condition như thế nào?
 
-Q7. Nếu Inventory unavailable, checkout API nên trả gì hoặc xử lý ra sao?`
+Q7. Nếu Inventory unavailable, checkout API nên trả gì hoặc xử lý ra sao?
+```
+
+---
+
+## **5. Hướng xử lý**
+
+```
+- Timeout 30s là "tử huyệt" gây cạn kiệt tài nguyên:
+  + Request bị giữ 30s sẽ chiếm dụng 1 thread trong Web Server (Tomcat thread pool).
+  + Khi traffic tiếp tục đổ về, toàn bộ thread bị nghẽn (Thread Pool Starvation).
+- Retry 3 lần ngay lập tức khi dependency đang chậm sẽ tạo ra hiện tượng khuếch đại lưu lượng (Retry Storm / Traffic Amplification):
+  + Tăng tải lên gấp 4 lần (1 request gốc + 3 retries) đổ dồn vào Inventory Service đang ngạt thở.
+- Get Order API bị chết oan vì dùng chung Thread Pool với Checkout:
+  + Dù Get Order không gọi Inventory nhưng không còn thread nào trong pool để tiếp nhận HTTP request từ Client.
+```
+
+Giải pháp kiến trúc theo thứ tự:
+
+```Text
+1. Siết chặt Timeout (Fail-Fast):
+   - Giảm HTTP client timeout xuống 1s - 1.5s đối với call sang Inventory Service.
+
+2. Cấu hình Retry có kiểm soát:
+   - Tắt retry tức thì; chuyển sang Exponential Backoff + Jitter.
+   - Chỉ retry nếu lỗi là network transient blip; không retry khi đối tác trả về bão hòa hoặc timeout kéo dài.
+
+3. Áp dụng Circuit Breaker:
+   - Khi tỷ lệ lỗi hoặc timeout của Inventory vượt 50% trong 10s:
+     Ngắt mạch (Chuyển sang OPEN).
+   - Mọi request checkout tiếp theo sẽ bị từ chối ngay lập tức trong 2ms (Fail-fast),
+     không gọi sang Inventory nữa, bảo vệ Thread Pool của Order Service và cho Inventory cơ hội hồi phục.
+
+4. Áp dụng Bulkhead (Phân vùng vách ngăn):
+   - Tách riêng Thread Pool cho các outbound call sang Inventory Service (ví dụ: tối đa 20 threads).
+   - Tách riêng Thread Pool cho luồng Read (Get Order) và luồng Write (Checkout).
+   - Khi Inventory bị nghẽn, chỉ có tối đa 20 threads của khoang Inventory bị kẹt,
+     toàn bộ các API khác như Get Order vẫn hoạt động 100% mượt mà.
+
+5. Graceful Degradation & Fallback khi Inventory unavailable:
+   - Trả về mã lỗi thân thiện HTTP 503 kèm thông báo: "Hệ thống kho đang bận, vui lòng thử lại sau giây lát".
+   - Hoặc với nghiệp vụ cho phép: Chấp nhận đơn ở trạng thái PENDING và đẩy vào Message Queue để Worker trừ kho bất đồng bộ (Asynchronous Reservation).
+```
