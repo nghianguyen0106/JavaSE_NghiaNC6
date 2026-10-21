@@ -12,54 +12,65 @@ Cuối tháng, HR manager mở dashboard liên tục để xem tổng lương, t
 
 Requirement:
 
-`- p95 dưới 500ms.
+```Text
+- p95 dưới 500ms.
 - Không OOM.
-- Dashboard không làm ảnh hưởng API update payroll.`
+- Dashboard không làm ảnh hưởng API update payroll.
+```
 
 ## **Kỹ thuật hiện tại**
 
-`Payroll Service
+```Text
+Payroll Service
   ↓
 Cache: static ConcurrentHashMap<tenantId, PayrollSummary>
   ↓
 Hibernate/JPA
   ↓
-Payroll DB`
+Payroll DB
+```
 
 Team dùng cache in-memory để giảm query database. Cache không có eviction rõ ràng; report object chứa nhiều employee detail.
 
 ## **Incident**
 
-`09:00  Heap: 2GB / 8GB
+```Text
+09:00  Heap: 2GB / 8GB
 11:00  Heap: 5GB / 8GB
 13:00  Heap: 7.5GB / 8GB
 13:05  Full GC liên tục
 13:10  p99 API: 12 seconds
-13:12  OutOfMemoryError`
+13:12  OutOfMemoryError
+```
 
 CPU chỉ khoảng 40–50%.
 
 ## **Câu hỏi**
 
-`1. Heap cao có đủ để kết luận memory leak không?
+```Text
+1. Heap cao có đủ để kết luận memory leak không?
 2. Vì sao CPU không cao nhưng API vẫn chậm?
 3. Cần lấy thread dump hay heap dump trước? Vì sao?
 4. Trong heap dump, cần tìm evidence gì?
 5. G1 hay ZGC có “fix” memory leak không?
-6. Immediate mitigation và long-term fix là gì?`
+6. Immediate mitigation và long-term fix là gì?
+```
 
 ## Giải pháp
 
-`- Heap tăng liên tục và không giảm đáng kể sau GC là strong signal cần điều tra retained objects.
+```Text
+- Heap tăng liên tục và không giảm đáng kể sau GC là strong signal cần điều tra retained objects.
 - Full GC/pause có thể làm latency cao dù CPU trung bình không cao.
 - Heap dump phù hợp để xem object nào chiếm/retain memory.
 - Thread dump bổ sung nếu nghi request threads bị block.
 - Đổi GC không giải quyết object bị giữ reference sai.
-- Root cause có thể là cache không eviction + cache nhầm dữ liệu detail quá lớn.`
+- Root cause có thể là cache không eviction + cache nhầm dữ liệu detail quá lớn.
+```
 
 Giải pháp:
 
-`Immediate:
+```Text
+Immediate:
 - Limit cache size/TTL.
 - Disable cache detail lớn.
 - Restart có kiểm soát nếu cần.
@@ -69,7 +80,8 @@ Long-term:
 - Bounded cache + eviction.
 - Tách report data/read model.
 - Dashboard pagination.
-- Monitor heap after GC, GC pause, allocation rate, cache size.`
+- Monitor heap after GC, GC pause, allocation rate, cache size.
+```
 
 
 # **Case 2 — Payroll tháng bị chạy hai lần vì scheduler retry**
@@ -80,38 +92,46 @@ Long-term:
 
 Mỗi tháng hệ thống chạy payroll cho một tenant:
 
-`POST /payroll/run
+```Text
+POST /payroll/run
 tenantId = ABC
 month = 2026-10`
 
 Business requirement:
 
-`- Một tenant chỉ được chạy payroll một lần cho một tháng.
+```Text
+- Một tenant chỉ được chạy payroll một lần cho một tháng.
 - Có thể retry nếu job fail.
-- Mọi thao tác phải audit được.`
+- Mọi thao tác phải audit được.
+```
 
 ## **Kỹ thuật hiện tại**
 
 Có hai trigger:
 
-`1. Scheduler chạy lúc 00:00.
+```Text
+1. Scheduler chạy lúc 00:00.
 2. HR admin có nút "Run Payroll" thủ công.`
 
 Cả hai cùng gọi `PayrollService.runPayroll()`.
 
 Team chỉ check:
 
-`if (payrollRunRepository.existsByTenantAndMonth(...)) {
+```Java
+if (payrollRunRepository.existsByTenantAndMonth(...)) {
     return;
-}`
+}
+```
 
 ## **Incident**
 
-`00:00:00 Scheduler bắt đầu run payroll.
+```Text
+00:00:00 Scheduler bắt đầu run payroll.
 00:00:01 HR admin không thấy trạng thái ngay, bấm Run Payroll.
 00:00:02 Hai request cùng check exists = false.
 00:00:03 Cả hai cùng tạo payroll records.
-00:00:05 Một số employee có 2 payslip.`
+00:00:05 Một số employee có 2 payslip.
+```
 
 ## **Câu hỏi**
 
