@@ -1,0 +1,31 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: order-service
+      environment: ${SPRING_PROFILES_ACTIVE:prod}
+      region: ${CLOUD_REGION:ap-southeast-1}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+      sla:
+        http.server.requests: 500ms, 1000ms
+
+# OpenTelemetry / Micrometer Tracing Sampling Configuration
+management.tracing:
+  sampling:
+    probability: 0.1 # Lấy mẫu 10% cho request thành công
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
